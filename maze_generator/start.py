@@ -1,4 +1,5 @@
 from random import randint
+from random import shuffle
 import copy
 import os
 import keyboard
@@ -71,17 +72,30 @@ def get_init_values(): # get height, width and algorithm for generating
     if width % 2 == 0:
         width += 1
     print('GENERATING A MAZE:')
-    print('choose the algorithm for generating your maze(dfs or prima):')
+    print('choose the algorithm for generating your maze:')
+    print('1. dfs')
+    print('2. prima')
+    print('3. kruskal')
     while True:
         change_color_to_green()
         algo = input()
         change_color_to_white()
         clear()
-        if algo != 'dfs' and algo != 'prima':
+        if algo == '1':
+            algo = 'dfs'
+            break
+        elif algo == '2':
+            algo = 'prima'
+            break
+        elif algo == '3':
+            algo = 'kruskal'
+            break
+        else:
             print('GENERATING A MAZE:')
             print('wrong algorithm, try again:')
-        else:
-            break
+            print('1. dfs')
+            print('2. prima')
+            print('3. kruskal')
     return height, width, algo
 
 
@@ -160,6 +174,37 @@ def generate_maze_with_prima_algorithm(height, width):
     return maze
 
 
+def generate_maze_with_kruskal_algorithm(height, width):
+    maze = Maze(height, width)
+    edges = []
+    for i in range(1, height, 2):
+        for j in range(1, width, 2):
+            if i + 2 < height:
+                edges.append([[i, j], [i + 2, j]])
+            if j + 2 < width:
+                edges.append([[i, j], [i, j + 2]])
+    color = [None] * height
+    for i in range(height):
+        color[i] = [0] * width
+    for i in range(height):
+        for j in range(width):
+            color[i][j] = i * width + j
+    shuffle(edges)
+    for edge in edges:
+        v1 = edge[0]
+        v2 = edge[1]
+        if color[v1[0]][v1[1]] == color[v2[0]][v2[1]]:
+            continue
+        maze.field[(v1[0] + v2[0]) // 2][(v1[1] + v2[1]) // 2].type = 'cell'
+        old_color = color[v1[0]][v1[1]]
+        new_color = color[v2[0]][v2[1]]
+        for i in range(1, height, 2):
+            for j in range(1, width, 2):
+                if color[i][j] == old_color:
+                    color[i][j] = new_color
+    return maze
+
+
 def print_maze(maze):
     print('Get your amazing maze:')
     for i in range(maze.height):
@@ -194,6 +239,8 @@ def generate_maze():
         maze = generate_maze_with_dfs_algorithm(height, width)
     elif algo == 'prima':
         maze = generate_maze_with_prima_algorithm(height, width)
+    elif algo == 'kruskal':
+        maze = generate_maze_with_kruskal_algorithm(height, width)
     print_maze(maze)
     return maze
 
@@ -316,6 +363,7 @@ def get_maze_from_file():
     print_maze(maze)
     f.close()
     return maze
+
 
 
 clear()

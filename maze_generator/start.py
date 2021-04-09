@@ -19,7 +19,7 @@ class Cell:
     def __init__(self, x = 1, y = 1, type = 'wall', visited = False):
         self.x = x
         self.y = y
-        self.type = type # wall/path/cell/start/finish/user
+        self.type = type # wall/path/cell/start/finish
         self.visited = visited
     
     
@@ -28,7 +28,7 @@ class Cell:
 
 
 class Maze:
-    def __init__(self, height, width):
+    def __init__(self, height = 1, width = 1):
         self.height = height
         self.width = width
         self.field = [None] * height
@@ -273,6 +273,49 @@ def try_to_solve_maze(main_maze):
         print('-type q to quit')
         print_maze(maze)
     print_maze(maze)
+
+
+def save_to_file(maze):
+    print('Enter a filename:')
+    filename = input()
+    clear()
+    f = open(filename, 'w')
+    f.write(str(maze.height) + '\n')
+    f.write(str(maze.width) + '\n')
+    for i in range(maze.height):
+        for j in range(maze.width):
+            f.write(maze.field[i][j].type + '\n')
+    f.close()
+    print_maze(maze)
+    print('Your maze was successfully saved to the ' + filename + '!')
+    print()
+
+
+def get_maze_from_file():
+    print('Enter a filename:')
+    filename = input()
+    clear()
+    f = open(filename, 'r')
+    x = 0
+    y = 0
+    step = 0
+    maze = Maze()
+    for line in f:
+        if step == 0:
+            height = int(line)
+        elif step == 1:
+            width = int(line)
+            maze = Maze(height, width)
+        else:
+            maze.field[x][y].type = line[:-1]
+            y += 1
+            if y == width:
+                y = 0
+                x += 1
+        step += 1
+    print_maze(maze)
+    f.close()
+    return maze
 
 
 clear()
